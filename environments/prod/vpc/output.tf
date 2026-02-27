@@ -2,6 +2,10 @@ output "name" {
     description = "The name of the VPC"
     value      = module.vpc.name
 }
+output "id" {
+    description = "The ID of the VPC"
+    value      = module.vpc.vpc_id
+}
 output "public_subnets" {
     description = "List of public subnet IDs"
     value      = module.vpc.public_subnets
@@ -45,4 +49,9 @@ output "vpc_private_subnet_cidrs" {
 output "vpc_public_subnet_cidrs" {
     description = "List of public subnet CIDR blocks"
     value      = module.vpc.public_subnets_cidr_blocks
+}
+
+output "vpc_default_seurity_group_id" {
+    description = "The ID of the default security group of the VPC"
+    value      = module.vpc.default_security_group_id
 }
