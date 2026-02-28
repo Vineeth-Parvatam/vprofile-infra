@@ -1,117 +1,185 @@
-# vprofile-infra 🚀
-Production-grade AWS infrastructure provisioning using Terraform for deploying an Amazon EKS cluster with secure Pod Identity and essential Kubernetes addons.
+# 🚀 vProfile Infrastructure Provisioning using Terraform (AWS EKS)
 
-This repository provisions a fully functional Kubernetes platform on AWS using Infrastructure as Code (IaC) principles.
+This repository contains Terraform code to provision production-grade AWS infrastructure for the vProfile application. The infrastructure includes a custom VPC and an AWS EKS cluster.
 
----
-
-# 📐 Architecture Overview
-
-This infrastructure deploys:
-
-- Custom VPC with public and private subnets
-- Amazon EKS Cluster
-- Managed Node Group (EC2 worker nodes)
-- EKS Addons:
-  - VPC CNI
-  - CoreDNS
-  - kube-proxy
-  - AWS EBS CSI Driver
-  - AWS EFS CSI Driver
-  - Metrics Server
-  - EKS Pod Identity Agent
-- Pod Identity Associations for secure IAM access from pods
+This repository represents the **Infrastructure phase** of a complete end-to-end DevOps implementation.
 
 ---
 
-# 🧱 Infrastructure Components
+## 🎯 Project Overview
 
-## VPC Layer
-Provisioned using Terraform:
+The objective of this repository is to provision **secure, scalable, and production-ready Kubernetes infrastructure** on AWS using Terraform.
 
-- VPC
-- Public Subnets
-- Private Subnets
-- Internet Gateway
-- NAT Gateway
-- Route Tables
-  
-Location: environments/prod/vpc/
----
-## EKS Layer
+The infrastructure is provisioned using a combination of:
 
-Provisioned resources:
+* 📦 AWS VPC Terraform module for networking
+* ⚙️ Native Terraform resources for EKS cluster and node group provisioning
 
-- EKS Cluster
-- Managed Node Group
-- IAM Roles
-- Kubernetes networking integration
-
-Location: environments/prod/eks/
----
-
-## Addons Layer
-
-Installed via Terraform:
-
-- aws-vpc-cni
-- coredns
-- kube-proxy
-- aws-ebs-csi-driver
-- aws-efs-csi-driver
-- metrics-server
-- eks-pod-identity-agent
-
-Also configured:
-
-- Pod Identity Associations
-- Secure IAM role bindings per service account
+This approach demonstrates both **efficient module usage** and **deep understanding of Terraform resource-level infrastructure creation**.
 
 ---
 
-# 🔐 Security Model
+## 🏗️ Infrastructure Components
 
-This project uses **EKS Pod Identity** instead of node-wide IAM roles.
+This repository provisions the following AWS resources:
 
-Benefits:
+---
 
-- Least privilege access
-- IAM role per Kubernetes service account
-- No need to expose node IAM role permissions to all pods
-- More secure and production-recommended approach
+### 🌐 VPC Infrastructure (`env/prod/vpc`)
 
-Example association:
+Provisioned using official AWS VPC Terraform module.
+
+**Resources created:**
+
+* 🌐 Custom VPC
+* 📡 Public Subnets
+* 🔒 Private Subnets
+* 🌍 Internet Gateway
+* 🚪 NAT Gateway
+* 🧭 Route Tables
+* 🔗 Route Table Associations
+
+**Purpose:**
+
+* Public subnets for internet-facing components such as Load Balancers
+* Private subnets for secure deployment of EKS worker nodes
+
+---
+
+### ☸️ EKS Infrastructure (`env/prod/eks`)
+
+Provisioned using native Terraform AWS resources.
+
+**Resources created:**
+
+* ☸️ AWS EKS Cluster
+* 🖥️ Managed Node Groups
+* 🔐 IAM Role for EKS Cluster
+* 🔑 IAM Role for Worker Nodes
+* 🪪 Pod Identity IAM Roles for Kubernetes workloads
+* 🛡️ Security Groups for cluster and node communication
+
+**Purpose:**
+
+* Provide managed Kubernetes control plane
+* Provide worker nodes in private subnets
+* Enable secure IAM access for Kubernetes pods using Pod Identity
+
+**Note:**
+
+Pod Identity is used instead of OIDC-based IRSA for assigning IAM roles to Kubernetes workloads.
+
+---
+
+## 📁 Repository Structure
 
 ```
+env/
+└── prod/
+    ├── vpc/
+    │   ├── backend.tf
+    │   ├── providers.tf
+    │   ├── variables.tf
+    │   ├── vpc.tf
+    │   └── outputs.tf
+    │
+    └── eks/
+        ├── backend.tf
+        ├── providers.tf
+        ├── variables.tf
+        ├── eks.tf
+        └── outputs.tf
+```
 
-Service Account: ebs-csi-controller-sa
-IAM Role: AmazonEKS_EBS_CSI_DriverRole
+**Description:**
 
-📂 Repository Structure
+🌐 `env/prod/vpc` → provisions networking infrastructure using Terraform AWS VPC module
 
+☸️ `env/prod/eks` → provisions EKS cluster and node groups using native Terraform resources
 
-vprofile-infra/
-│
-├── environments/
-│   └── prod/
-│       ├── vpc/
-│       │   ├── main.tf
-│       │   ├── variables.tf
-│       │   ├── outputs.tf
-│       │   └── backend.tf
-│       │
-│       └── eks/
-│           ├── main.tf
-│           ├── variables.tf
-│           ├── outputs.tf
-│           └── backend.tf
-│
-└── README.md
+---
 
-⚙️ Prerequisites
+## 💾 Remote State Management
 
-Install:
-  Terraform >= 1.5
-  AWS CLI
-  kubectl
-  AWS account with required permissions
+Terraform remote backend is configured using:
+
+* 🪣 AWS S3 bucket for storing Terraform state
+* 🔒 AWS DynamoDB table for state locking
+
+**Benefits:**
+
+* Prevents state conflicts
+* Ensures safe infrastructure provisioning
+* Supports production-grade infrastructure workflows
+
+---
+
+## ⚡ Deployment Steps
+
+### Step 1: Provision VPC
+
+```
+cd env/prod/vpc
+terraform init
+terraform plan
+terraform apply
+```
+
+### Step 2: Provision EKS Cluster
+
+```
+cd env/prod/eks
+terraform init
+terraform plan
+terraform apply
+```
+
+---
+
+## ✅ Production-Grade Practices Implemented
+
+✔️ Infrastructure as Code using Terraform
+✔️ Custom VPC using Terraform AWS module
+✔️ EKS cluster provisioned using native Terraform resources
+✔️ Private subnet worker nodes for improved security
+✔️ Pod Identity IAM roles for Kubernetes workloads
+✔️ Remote state management using S3 and DynamoDB
+✔️ Environment-based infrastructure separation
+
+---
+
+## 🛠️ Tools and Technologies Used
+
+Terraform
+AWS VPC
+AWS EKS
+AWS IAM
+AWS EC2
+AWS S3
+AWS DynamoDB
+Kubernetes
+
+---
+
+## 📌 Project Context
+
+This repository is part of a complete production-grade DevOps project consisting of:
+
+**Phase 1:** 🏗️ Infrastructure Provisioning using Terraform (This Repository)
+
+**Phase 2:** 🔄 Continuous Integration using Jenkins, SonarQube, Docker, and ECR
+
+**Phase 3:** 🚀 Continuous Deployment using Helm and Kubernetes on AWS EKS
+
+---
+
+## 👨‍💻 Author
+
+**Vineeth Parvatam**
+DevOps | Terraform | Kubernetes | AWS | SaaS Engineer
+
+---
+
+## 🎯 Objective
+
+To design and implement **production-grade Kubernetes infrastructure on AWS using Terraform**, following real-world DevOps and cloud engineering practices.
